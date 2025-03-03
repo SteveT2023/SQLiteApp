@@ -27,12 +27,14 @@ class _userInfoState extends State<userInfo> {
   late DatabaseHelper _dbHelper;
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
+  List<Map<String, dynamic>> _users = [];
 
   @override
   void initState() {
     super.initState();
     _dbHelper = DatabaseHelper();
     _dbHelper.init();
+    _loadUsers();
   }
 
   void _addUser() async {
@@ -54,11 +56,19 @@ class _userInfoState extends State<userInfo> {
     _nameController.clear();
     _ageController.clear();
 
+    _loadUsers();
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('User added successfully')),
     );
+  }
 
-    setState(() {}); 
+  void _loadUsers() async {
+    final users = await _dbHelper.queryAllRows();
+    print("Loaded users: $users"); 
+    setState(() {
+      _users = users;
+    });
   }
 
   @override
@@ -70,7 +80,7 @@ class _userInfoState extends State<userInfo> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: _nameController,
@@ -93,6 +103,26 @@ class _userInfoState extends State<userInfo> {
               onPressed: _addUser,
               child: Text('Add User'),
             ),
+            SizedBox(height: 32),
+            Text(
+              'Users in Database:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            _users.isEmpty
+                ? Text('No users found')
+                : Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _users.length,
+                      itemBuilder: (context, index) {
+                        var user = _users[index];
+                        return ListTile(
+                          title: Text(user['name']),
+                          subtitle: Text('Age: ${user['age']}'),
+                        );
+                      },
+                    ),
+                  ),
           ],
         ),
       ),
