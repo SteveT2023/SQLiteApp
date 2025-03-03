@@ -65,10 +65,7 @@ class _userInfoState extends State<userInfo> {
 
   void _loadUsers() async {
     final users = await _dbHelper.queryAllRows();
-    print("Loaded users: $users"); 
-    setState(() {
-      _users = users;
-    });
+    print("Loaded users: $users");
   }
 
   @override
@@ -103,26 +100,6 @@ class _userInfoState extends State<userInfo> {
               onPressed: _addUser,
               child: Text('Add User'),
             ),
-            SizedBox(height: 32),
-            Text(
-              'Users in Database:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            _users.isEmpty
-                ? Text('No users found')
-                : Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _users.length,
-                      itemBuilder: (context, index) {
-                        var user = _users[index];
-                        return ListTile(
-                          title: Text(user['name']),
-                          subtitle: Text('Age: ${user['age']}'),
-                        );
-                      },
-                    ),
-                  ),
           ],
         ),
       ),
